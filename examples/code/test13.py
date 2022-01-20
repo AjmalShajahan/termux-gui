@@ -69,15 +69,6 @@ def drawcircle(surf, x, y ,r, color):
     # too lazy to actually write a circle drawing algorithm that performs good enough in python
     sdl2.ext.fill(surf, color, (x-r/2, y-r/2, r, r))
     return
-    view = sdl2.ext.PixelView(surf)
-    for xp in range(-r, r):
-        for yp in range(-r, r):
-            if xp*xp + yp*yp <= r*r:
-                try:
-                    view[y+yp][x+xp] = color
-                except IndexError:
-                    pass
-    del view
         
 
 def vectlen(vect):
@@ -158,26 +149,25 @@ def render():
     while True:
         #print("loop")
         t1 = time.time()
-        
+
         white = sdl2.ext.Color(255, 255, 255, 255)
         sdl2.ext.fill(surf, white)
-        
+
         #print("screen cleared")
         for m in world:
             drawcircle(surf, int(m.x+ox), int(m.y+oy), int(m.m ** 0.5), blue)
-        
+
         if not stopped:
             for m1 in world:
                 for m2 in world:
-                    if m1 != m2:
-                        if not m1.collision(m2):
-                            m1.attract(m2)
-            
+                    if m1 != m2 and not m1.collision(m2):
+                        m1.attract(m2)
+
             for m in world:
                 m.x += m.dx
                 m.y += m.dy
-        
-        
+
+
         with conlock:
             b.blit()
             im.refresh()
@@ -232,16 +222,10 @@ for ev in c.events():
                         break;
             if len(ev.value["pointers"]) == 2:
                 d = vectlen((abs(ev.value["pointers"][0]["x"]-ev.value["pointers"][1]["x"]), abs(ev.value["pointers"][0]["y"]-ev.value["pointers"][1]["y"])))
-                if lastdist == 0:
-                    lastdist = d
-                else:
-                    #print(lastdist-d)
-                    lastdist = d
-                
-                
+                lastdist = d
             moved = True
-            
-            
+
+
         if ev.value["action"] == "up":
             if time.time()-ptime > 0.5 and not moved:
                 longp = True

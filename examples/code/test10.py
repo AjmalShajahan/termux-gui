@@ -15,13 +15,13 @@ def read_msg(s):
     togo = 4
     while togo > 0:
         read = s.recv(togo)
-        b = b + read
-        togo = togo - len(read)
+        b += read
+        togo -= len(read)
     togo = int.from_bytes(b, "big")
     b = b''
     while togo > 0:
         read = s.recv(togo)
-        b = b + read
+        b += read
         togo = togo - len(read)
     return json.loads(b.decode("utf-8"))
     
@@ -48,7 +48,7 @@ connection.sendall(b'\x01')
 
 ret = b''
 while len(ret) == 0:
-    ret = ret + connection.recv(1)
+    ret += connection.recv(1)
 
 
 send_msg(connection, '{"method":"newActivity", "params": {"overlay": true} }')
@@ -82,19 +82,17 @@ try:
         ev = read_msg(connection2)
         if ev["type"] == "overlayScale":
             if scale != 0:
-                size = size + (scale - ev["value"])/5
+                size += (scale - ev["value"])/5
             scale = ev["value"]
             send_msg(connection, f'{{"method":"setWidth", "params": {{"aid": "{aid}", "id": {tv}, "width": {int(size)} }} }}')
             send_msg(connection, f'{{"method":"setHeight", "params": {{"aid": "{aid}", "id": {tv}, "height": {int(size)} }} }}')
-        if ev["type"] == "overlayTouch":
-            #print("touch")
-            if scale != 0:
-                #print("drag")
-                if ev["value"]["action"] == "up":
-                    scale = 0
-                else:
-                    send_msg(connection, f'{{"method":"setPosition", "params": {{"aid": "{aid}", "x": {int(ev["value"]["x"])}, "y": {int(ev["value"]["y"])} }} }}')
-                
+        if ev["type"] == "overlayTouch" and scale != 0:
+            #print("drag")
+            if ev["value"]["action"] == "up":
+                scale = 0
+            else:
+                send_msg(connection, f'{{"method":"setPosition", "params": {{"aid": "{aid}", "x": {int(ev["value"]["x"])}, "y": {int(ev["value"]["y"])} }} }}')
+
 except:
     try:
         print()
