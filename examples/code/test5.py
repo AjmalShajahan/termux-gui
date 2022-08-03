@@ -27,13 +27,13 @@ def read_msg(s):
     togo = 4
     while togo > 0:
         read = s.recv(togo)
-        b = b + read
-        togo = togo - len(read)
+        b += read
+        togo -= len(read)
     togo = int.from_bytes(b, "big")
     b = b''
     while togo > 0:
         read = s.recv(togo)
-        b = b + read
+        b += read
         togo = togo - len(read)
     return json.loads(b.decode("utf-8"))
     
@@ -47,8 +47,8 @@ def read_msg_fd(s):
     togo = 4
     while togo > 0:
         read = s.recv(togo)
-        b = b + read
-        togo = togo - len(read)
+        b += read
+        togo -= len(read)
     togo = int.from_bytes(b, "big")
     b = b''
     fds = array.array("i")
@@ -57,7 +57,7 @@ def read_msg_fd(s):
         for cmsg_level, cmsg_type, cmsg_data in ancdata:
             if cmsg_level == socket.SOL_SOCKET and cmsg_type == socket.SCM_RIGHTS:
                 fds.frombytes(cmsg_data[:len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
-        b = b + read
+        b += read
         togo = togo - len(read)
     if len(fds) != 0:
         return [json.loads(b.decode("utf-8")), fds[0]]

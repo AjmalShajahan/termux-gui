@@ -15,13 +15,13 @@ def read_msg(s):
     togo = 4
     while togo > 0:
         read = s.recv(togo)
-        b = b + read
-        togo = togo - len(read)
+        b += read
+        togo -= len(read)
     togo = int.from_bytes(b, "big")
     b = b''
     while togo > 0:
         read = s.recv(togo)
-        b = b + read
+        b += read
         togo = togo - len(read)
     return json.loads(b.decode("utf-8"))
     
@@ -48,7 +48,7 @@ connection.sendall(b'\x01')
 
 ret = b''
 while len(ret) == 0:
-    ret = ret + connection.recv(1)
+    ret += connection.recv(1)
 
 
 send_msg(connection, '{"method":"newActivity", "params": {"lockscreen": true} }')
